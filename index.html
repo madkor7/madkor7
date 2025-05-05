@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>نظام إدارة الموظفين والإجازات</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: #f5f7fa;
+    margin: 0; padding: 0;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    max-width: 350px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #71b7e6, #9b59b6);
+  }
+  header {
+    background: #6a11cb;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  main {
+    background: #fff;
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    border-radius: 0 0 20px 20px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+  }
+  nav {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+  }
+  nav button {
+    background: #6a11cb;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 8px rgba(106,17,203,0.5);
+    transition: background-color 0.3s ease;
+  }
+  nav button.active, nav button:hover {
+    background: #9b59b6;
+    box-shadow: 0 3px 12px rgba(155,89,182,0.7);
+  }
+  input[type="search"], input[type="text"], input[type="date"], input[type="number"], select, textarea {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    margin: 0.4rem 0 0.9rem 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    font-family: 'Cairo', sans-serif;
+  }
+  label {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.4rem 0.6rem;
+    text-align: center;
+  }
+  th {
+    background: #6a11cb;
+    color: white;
+  }
+  tr:nth-child(even) {
+    background: #f3f3f3;
+  }
+  tr:hover {
+    background: #d6d1f7;
+  }
+  .section-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 1rem 0 0.4rem 0;
+    border-bottom: 2px solid #6a11cb;
+    padding-bottom: 0.2rem;
+  }
+  .btn {
+    background: #6a11cb;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 3px 8px rgba(106,17,203,0.5);
+    transition: background-color 0.3s ease;
+  }
+  .btn:hover {
+    background: #9b59b6;
+    box-shadow: 0 3px 12px rgba(155,89,182,0.7);
+  }
+  .select-list {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 0;
+    margin-bottom: 0.6rem;
+    background: white;
+    cursor: pointer;
+  }
+  .select-list div {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .select-list div:hover, .select-list div:focus {
+    background: #6a11cb;
+    color: white;
+    outline: none;
+  }
+  .hidden {
+    display: none;
+  }
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #6a11cb;
+    border-radius: 10px;
+  }
+
+  /* Print styling */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #print-section, #print-section * {
+      visibility: visible;
+    }
+    #print-section {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      max-width: 100%;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      background: white !important;
+      color: black !important;
+      padding: 0;
+      margin: 0;
+      overflow: visible !important;
+    }
+    nav, #btn-search, #btn-admin {
+      display: none !important;
+    }
+  }
+</style>
+</head>
+<body>
+<header>نظام إدارة الموظفين والإجازات</header>
+<nav>
+  <button id="btn-search" class="active" aria-label="تبويب البحث">البحث</button>
+  <button id="btn-admin" aria-label="تبويب الإدارة الداخلية">الإدارة الداخلية</button>
+</nav>
+<main id="main-content" role="main">
+
+<section id="section-search">
+  <label for="search-input">ابحث باسم الموظف</label>
+  <input type="search" id="search-input" placeholder="اكتب جزءاً من اسم الموظف..." aria-autocomplete="list" aria-controls="search-list" autocomplete="off" />
+  <div id="search-list" class="select-list" role="listbox" aria-label="نتائج البحث"></div>
+
+  <div id="employee-info" class="hidden" aria-live="polite" aria-atomic="true" tabindex="-1">
+    <div id="print-section">
+      <p><strong>الاسم:</strong> <span id="emp-name"></span></p>
+      <p><strong>القسم:</strong> <span id="emp-department"></span></p>
+      <p><strong>تاريخ التعيين:</strong> <span id="emp-hiredate"></span></p>
+      <p><strong>رصيد الإجازات (أيام):</strong> <span id="emp-leavebalance"></span></p>
+
+      <div class="section-title">سجل الإجازات</div>
+      <table aria-label="جدول الإجازات">
+        <thead>
+          <tr>
+            <th>تاريخ البداية</th>
+            <th>تاريخ النهاية</th>
+            <th>نوع الإجازة</th>
+            <th>عدد الأيام</th>
+          </tr>
+        </thead>
+        <tbody id="leave-table-body"></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 1rem;">
+      <label for="deduct-days-input"><strong>إنقاص من رصيد الإجازات (أيام):</strong></label>
+      <input type="number" id="deduct-days-input" min="1" max="365" placeholder="أدخل عدد الأيام المراد إنقاصها" />
+      <button id="btn-deduct" class="btn">إنقاص الرصيد</button>
+    </div>
+
+    <button id="btn-print" class="btn" style="margin-top: 1rem;">طباعة</button>
+  </div>
+</section>
+
+<section id="section-admin" class="hidden" aria-hidden="true">
+
+  <h2>الإدارة الداخلية</h2>
+
+  <label for="admin-emp-name">اسم الموظف</label>
+  <input type="text" id="admin-emp-name" placeholder="اسم الموظف" />
+
+  <label for="admin-emp-department">القسم</label>
+  <input type="text" id="admin-emp-department" placeholder="القسم" />
+
+  <label for="admin-emp-hiredate">تاريخ التعيين</label>
+  <input type="date" id="admin-emp-hiredate" />
+
+  <label for="admin-emp-leavebalance">رصيد الإجازات (أيام):</label>
+  <input type="number" id="admin-emp-leavebalance" min="0" />
+
+  <button class="btn" id="btn-add-employee">إضافة / تحديث الموظف</button>
+
+  <h3>إضافة إجازة لموظف</h3>
+  <label for="admin-leave-emp">اختر الموظف</label>
+  <select id="admin-leave-emp" aria-required="true" >
+    <!-- options populated dynamically -->
+  </select>
+
+  <label for="admin-leave-start">تاريخ البداية</label>
+  <input type="date" id="admin-leave-start" />
+
+  <label for="admin-leave-end">تاريخ النهاية</label>
+  <input type="date" id="admin-leave-end" />
+
+  <label for="admin-leave-type">نوع الإجازة</label>
+  <input type="text" id="admin-leave-type" placeholder="نوع الإجازة" />
+
+  <button class="btn" id="btn-add-leave">إضافة الإجازة</button>
+
+  <h3>سجل الموظفين</h3>
+  <table aria-label="جدول الموظفين">
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>القسم</th>
+        <th>تاريخ التعيين</th>
+        <th>رصيد الإجازات</th>
+        <th>حذف</th>
+      </tr>
+    </thead>
+    <tbody id="admin-employee-table-body"></tbody>
+  </table>
+
+  <h3>سجل الإجازات</h3>
+  <table aria-label="جدول الإجازات">
+    <thead>
+      <tr>
+        <th>الموظف</th>
+        <th>تاريخ البداية</th>
+        <th>تاريخ النهاية</th>
+        <th>نوع الإجازة</th>
+        <th>عدد الأيام</th>
+        <th>حذف</th>
+      </tr>
+    </thead>
+    <tbody id="admin-leave-table-body"></tbody>
+  </table>
+
+</section>
+
+<script>
+(() => {
+  // Sample data for employees and leaves
+  // In real scenario, data would come from backend or CSV file. Here we simulate it and save to localStorage for persistence.
+
+  // Data structure
+  // employees: array of { id, name, department, hireDate (yyyy-mm-dd), leaveBalance }
+  // leaves: array of { id, empId, startDate, endDate, type, days }
+
+  // Utility for date difference in days (inclusive)
+  function daysBetween(start, end) {
+    const s = new Date(start);
+    const e = new Date(end);
+    // difference in milliseconds + 1 day for inclusive count
+    return Math.floor((e-s) / (1000*60*60*24)) + 1;
+  }
+
+  // Initial dummy data
+  const sampleEmployees = [
+    {id: 1, name: "أحمد محمد", department: "الموارد البشرية", hireDate: "2018-03-15", leaveBalance: 15},
+    {id: 2, name: "سمير علي", department: "التقنية", hireDate: "2019-06-10", leaveBalance: 12},
+    {id: 3, name: "منى خالد", department: "المحاسبة", hireDate: "2020-01-02", leaveBalance: 18},
+  ];
+  const sampleLeaves = [
+    {id: 1, empId: 1, startDate: "2023-01-10", endDate: "2023-01-14", type: "إجازة سنوية", days: 5},
+    {id: 2, empId: 2, startDate: "2023-02-05", endDate: "2023-02-06", type: "إجازة مرضية", days: 2},
+    {id: 3, empId: 1, startDate: "2023-04-12", endDate: "2023-04-15", type: "إجازة خاصة", days: 4},
+    {id: 4, empId: 3, startDate: "2023-05-20", endDate: "2023-05-25", type: "إجازة سنوية", days: 6},
+  ];
+
+  const STORAGE_KEYS = {
+    EMPLOYEES: 'emp_mgmt_employees',
+    LEAVES: 'emp_mgmt_leaves',
+    NEXT_EMP_ID: 'emp_mgmt_next_emp_id',
+    NEXT_LEAVE_ID: 'emp_mgmt_next_leave_id',
+  };
+
+  // Load or initialize data in localStorage
+  function loadData() {
+    let employees = JSON.parse(localStorage.getItem(STORAGE_KEYS.EMPLOYEES));
+    let leaves = JSON.parse(localStorage.getItem(STORAGE_KEYS.LEAVES));
+    let nextEmpId = parseInt(localStorage.getItem(STORAGE_KEYS.NEXT_EMP_ID));
+    let nextLeaveId = parseInt(localStorage.getItem(STORAGE_KEYS.NEXT_LEAVE_ID));
+
+    if (!employees || !Array.isArray(employees)) {
+      employees = sampleEmployees;
+      localStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(employees));
+      localStorage.setItem(STORAGE_KEYS.NEXT_EMP_ID, String(sampleEmployees.length + 1));
+    }
+    if (!leaves || !Array.isArray(leaves)) {
+      leaves = sampleLeaves;
+      localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(leaves));
+      localStorage.setItem(STORAGE_KEYS.NEXT_LEAVE_ID, String(sampleLeaves.length + 1));
+    }
+    if (!nextEmpId) {
+      nextEmpId = employees.length + 1;
+      localStorage.setItem(STORAGE_KEYS.NEXT_EMP_ID, String(nextEmpId));
+    }
+    if (!nextLeaveId) {
+      nextLeaveId = leaves.length +1;
+      localStorage.setItem(STORAGE_KEYS.NEXT_LEAVE_ID, String(nextLeaveId));
+    }
+    return {employees, leaves, nextEmpId, nextLeaveId};
+  }
+
+  // Save data to localStorage
+  function saveData(employees, leaves, nextEmpId, nextLeaveId) {
+    localStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(employees));
+    localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(leaves));
+    localStorage.setItem(STORAGE_KEYS.NEXT_EMP_ID, String(nextEmpId));
+    localStorage.setItem(STORAGE_KEYS.NEXT_LEAVE_ID, String(nextLeaveId));
+  }
+
+  // Filter employees by partial name (case-insensitive)
+  function filterEmployeesByName(employees, namePart) {
+    const lower = namePart.trim().toLowerCase();
+    if (!lower) return [];
+    return employees.filter(emp => emp.name.toLowerCase().includes(lower));
+  }
+
+  // Render search results list in the dropdown under search input
+  function renderSearchList(employees) {
+    const list = document.getElementById('search-list');
+    list.innerHTML = '';
+    if (employees.length === 0) {
+      const noRes = document.createElement('div');
+      noRes.textContent = 'لا توجد نتائج';
+      noRes.style.color = "#666";
+      noRes.style.padding = "0.5rem 0.8rem";
+      list.appendChild(noRes);
+      return;
+    }
+    employees.forEach(emp => {
+      const div = document.createElement('div');
+      div.textContent = emp.name + ' - ' + emp.department;
+      div.setAttribute('role', 'option');
+      div.tabIndex = 0;
+      div.dataset.empId = emp.id;
+      div.addEventListener('click', () => selectEmployee(emp.id));
+      div.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          selectEmployee(emp.id);
+          e.preventDefault();
+        }
+      });
+      list.appendChild(div);
+    });
+  }
+
+  // Show employee info and leave table
+  function showEmployeeDetails(emp, leaves) {
+    document.getElementById('employee-info').classList.remove('hidden');
+    document.getElementById('emp-name').textContent = emp.name;
+    document.getElementById('emp-department').textContent = emp.department;
+    document.getElementById('emp-hiredate').textContent = new Date(emp.hireDate).toLocaleDateString('ar-EG');
+    document.getElementById('emp-leavebalance').textContent = emp.leaveBalance;
+
+    // Filter leaves for this employee
+    const empLeaves = leaves.filter(lv => lv.empId === emp.id).sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
+    const tbody = document.getElementById('leave-table-body');
+    tbody.innerHTML = '';
+    if (empLeaves.length === 0) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 4;
+      td.style.fontStyle = 'italic';
+      td.textContent = 'لا توجد إجازات مسجلة';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    } else {
+      empLeaves.forEach(lv => {
+        const tr = document.createElement('tr');
+        const start = new Date(lv.startDate).toLocaleDateString('ar-EG');
+        const end = new Date(lv.endDate).toLocaleDateString('ar-EG');
+        tr.innerHTML = `
+          <td>${start}</td>
+          <td>${end}</td>
+          <td>${lv.type}</td>
+          <td>${lv.days}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
+  // Clear employee info display
+  function clearEmployeeDetails() {
+    document.getElementById('employee-info').classList.add('hidden');
+    document.getElementById('emp-name').textContent = '';
+    document.getElementById('emp-department').textContent = '';
+    document.getElementById('emp-hiredate').textContent = '';
+    document.getElementById('emp-leavebalance').textContent = '';
+    document.getElementById('leave-table-body').innerHTML = '';
+    document.getElementById('deduct-days-input').value = '';
+  }
+
+  // Select employee by id from data lists and display details
+  function selectEmployee(empId) {
+    const emp = state.employees.find(e => e.id === empId);
+    if (emp) {
+      showEmployeeDetails(emp, state.leaves);
+      // Clear search results and input
+      document.getElementById('search-list').innerHTML = '';
+      document.getElementById('search-input').value = '';
+      // Focus employee info section for screen readers
+      document.getElementById('employee-info').focus();
+    }
+  }
+
+  // Render employees in admin employee table
+  function renderAdminEmployeeTable() {
+    const tbody = document.getElementById('admin-employee-table-body');
+    tbody.innerHTML = '';
+    state.employees.forEach(emp => {
+      const tr = document.createElement('tr');
+      const hireDateFormatted = new Date(emp.hireDate).toLocaleDateString('ar-EG');
+      tr.innerHTML = `
+        <td>${emp.name}</td>
+        <td>${emp.department}</td>
+        <td>${hireDateFormatted}</td>
+        <td>${emp.leaveBalance}</td>
+        <td><button aria-label="حذف ${emp.name}" style="color: #cc0000; font-weight: bold; border:none; background:none; cursor:pointer;">✖</button></td>
+      `;
+      // Delete employee listener
+      tr.querySelector('button').addEventListener('click', () => {
+        if (confirm('هل أنت متأكد من حذف الموظف "' + emp.name + '"؟ سيتم حذف جميع سجلات الإجازات الخاصة به.')) {
+          deleteEmployee(emp.id);
+        }
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Delete employee and all leaves of that employee
+  function deleteEmployee(empId) {
+    state.employees = state.employees.filter(e => e.id !== empId);
+    state.leaves = state.leaves.filter(lv => lv.empId !== empId);
+    saveData(state.employees, state.leaves, state.nextEmpId, state.nextLeaveId);
+    renderAdminEmployeeTable();
+    renderAdminLeaveTable();
+    renderLeaveEmployeeOptions();
+    // If currently selected employee detail shown is deleted, clear details
+    const empNameInDetail = document.getElementById('emp-name').textContent;
+    if (empNameInDetail && empNameInDetail === getEmployeeName(empId)) {
+      clearEmployeeDetails();
+    }
+  }
+
+  // Render leaves in admin leaves table
+  function renderAdminLeaveTable() {
+    const tbody = document.getElementById('admin-leave-table-body');
+    tbody.innerHTML = '';
+    // For each leave, find employee name
+    state.leaves.forEach(lv => {
+      const emp = state.employees.find(e => e.id === lv.empId);
+      if (!emp) return; // skip leaves with missing employee
+      const tr = document.createElement('tr');
+      const startFormatted = new Date(lv.startDate).toLocaleDateString('ar-EG');
+      const endFormatted = new Date(lv.endDate).toLocaleDateString('ar-EG');
+      tr.innerHTML = `
+        <td>${emp.name}</td>
+        <td>${startFormatted}</td>
+        <td>${endFormatted}</td>
+        <td>${lv.type}</td>
+        <td>${lv.days}</td>
+        <td><button aria-label="حذف إجازة ${lv.type} للموظف ${emp.name}" style="color: #cc0000; font-weight: bold; border:none; background:none; cursor:pointer;">✖</button></td>
+      `;
+      tr.querySelector('button').addEventListener('click', () => {
+        if (confirm('هل أنت متأكد من حذف الإجازة؟')) {
+          deleteLeave(lv.id);
+        }
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Delete leave record
+  function deleteLeave(leaveId) {
+    state.leaves = state.leaves.filter(lv => lv.id !== leaveId);
+    saveData(state.employees, state.leaves, state.nextEmpId, state.nextLeaveId);
+    renderAdminLeaveTable();
+    // Refresh employee detail if open for that employee
+    const empIdInDetail = getCurrentlySelectedEmployeeId();
+    if (empIdInDetail) {
+      selectEmployee(empIdInDetail);
+    }
+  }
+
+  // Return currently displayed employee ID in details panel or null if none
+  function getCurrentlySelectedEmployeeId() {
+    const name = document.getElementById('emp-name').textContent;
+    const emp = state.employees.find(e => e.name === name);
+    return emp ? emp.id : null;
+  }
+
+  // Get employee name by id fallback to empty string
+  function getEmployeeName(empId) {
+    const emp = state.employees.find(e => e.id === empId);
+    return emp ? emp.name : '';
+  }
+
+  // Populate employee dropdown in admin leave add form
+  function renderLeaveEmployeeOptions() {
+    const sel = document.getElementById('admin-leave-emp');
+    sel.innerHTML = '';
+    state.employees.forEach(emp => {
+      const option = document.createElement('option');
+      option.value = emp.id;
+      option.textContent = emp.name + ' - ' + emp.department;
+      sel.appendChild(option);
+    });
+  }
+
+  // Validate employee form inputs, returns {valid, message}
+  function validateEmployeeForm(name, department, hireDate, leaveBalance) {
+    if (!name.trim()) return {valid:false, message:'يرجى إدخال اسم الموظف.'};
+    if (!department.trim()) return {valid:false, message:'يرجى إدخال القسم.'};
+    if (!hireDate) return {valid:false, message:'يرجى إدخال تاريخ التعيين.'};
+    const dateObj = new Date(hireDate);
+    if (isNaN(dateObj.getTime())) return {valid:false, message:'تاريخ التعيين غير صالح.'};
+    if (leaveBalance === '' || leaveBalance === null || isNaN(leaveBalance)) return {valid:false, message:'يرجى إدخال رصيد الإجازات.'};
+    if (leaveBalance < 0) return {valid:false, message:'رصيد الإجازات يجب أن يكون رقمًا موجبا أو صفراً.'};
+    return {valid:true, message:''};
+  }
+
+  // Validate leave form inputs
+  function validateLeaveForm(empId, startDate, endDate, type) {
+    if (!empId) return {valid:false, message:'يرجى اختيار الموظف.'};
+    if (!startDate) return {valid:false, message:'يرجى إدخال تاريخ بداية الإجازة.'};
+    if (!endDate) return {valid:false, message:'يرجى إدخال تاريخ نهاية الإجازة.'};
+    if (new Date(endDate)< new Date(startDate)) return {valid:false, message:'تاريخ نهاية الإجازة يجب أن يكون بعد أو مساوي لتاريخ البداية.'};
+    if (!type.trim()) return {valid:false, message:'يرجى إدخال نوع الإجازة.'};
+    return {valid:true, message:''};
+  }
+
+  // Add or update employee (if same name exists, update it)
+  function addOrUpdateEmployee(name, department, hireDate, leaveBalance) {
+    // Check if employee name exists (case insensitive)
+    const existing = state.employees.find(e => e.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      // Update existing
+      existing.department = department;
+      existing.hireDate = hireDate;
+      existing.leaveBalance = leaveBalance;
+    } else {
+      // Add new
+      state.employees.push({id: state.nextEmpId++, name, department, hireDate, leaveBalance});
+    }
+    saveData(state.employees, state.leaves, state.nextEmpId, state.nextLeaveId);
+    renderAdminEmployeeTable();
+    renderLeaveEmployeeOptions();
+    alert('تمت إضافة/تحديث الموظف بنجاح.');
+  }
+
+  // Add leave record for employee
+  function addLeave(empId, startDate, endDate, type) {
+    const days = daysBetween(startDate, endDate);
+    state.leaves.push({
+      id: state.nextLeaveId++,
+      empId,
+      startDate,
+      endDate,
+      type,
+      days
+    });
+    saveData(state.employees, state.leaves, state.nextEmpId, state.nextLeaveId);
+    renderAdminLeaveTable();
+    alert('تمت إضافة الإجازة بنجاح.');
+  }
+
+  // Deduct leave days from employee leave balance
+  function deductLeaveDays(empId, daysToDeduct) {
+    const emp = state.employees.find(e => e.id === empId);
+    if (!emp) {
+      alert('الموظف غير موجود.');
+      return false;
+    }
+    if (isNaN(daysToDeduct) || daysToDeduct <= 0 || !Number.isInteger(daysToDeduct)) {
+      alert('يرجى إدخال عدد أيام صحيح وأكثر من صفر.');
+      return false;
+    }
+    if (emp.leaveBalance < daysToDeduct) {
+      alert('رصيد الإجازات أقل من العدد الذي تريد إنقاصه.');
+      return false;
+    }
+    emp.leaveBalance -= daysToDeduct;
+    saveData(state.employees, state.leaves, state.nextEmpId, state.nextLeaveId);
+    // Update display
+    showEmployeeDetails(emp, state.leaves);
+    renderAdminEmployeeTable();
+    renderLeaveEmployeeOptions();
+    alert('تم إنقاص رصيد الإجازات بنجاح.');
+    return true;
+  }
+
+  // Toggle between search and admin sections
+  function toggleSection(section) {
+    const searchSec = document.getElementById('section-search');
+    const adminSec = document.getElementById('section-admin');
+    const btnSearch = document.getElementById('btn-search');
+    const btnAdmin = document.getElementById('btn-admin');
+    if (section === 'search') {
+      searchSec.classList.remove('hidden');
+      adminSec.classList.add('hidden');
+      btnSearch.classList.add('active');
+      btnAdmin.classList.remove('active');
+      adminSec.setAttribute('aria-hidden', 'true');
+      searchSec.setAttribute('aria-hidden', 'false');
+    } else {
+      searchSec.classList.add('hidden');
+      adminSec.classList.remove('hidden');
+      btnSearch.classList.remove('active');
+      btnAdmin.classList.add('active');
+      searchSec.setAttribute('aria-hidden', 'true');
+      adminSec.setAttribute('aria-hidden', 'false');
+      clearEmployeeDetails();
+    }
+  }
+
+  // State container
+  let state = loadData();
+
+  // Event listeners setup
+  window.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search-input');
+    const searchList = document.getElementById('search-list');
+    const deductInput = document.getElementById('deduct-days-input');
+    const btnDeduct = document.getElementById('btn-deduct');
+    const btnPrint = document.getElementById('btn-print');
+
+    // Search input keyup event for filtering
+    searchInput.addEventListener('input', e => {
+      const val = e.target.value;
+      if (val.trim() === '') {
+        searchList.innerHTML = '';
+        clearEmployeeDetails();
+        return;
+      }
+      const results = filterEmployeesByName(state.employees, val);
+      renderSearchList(results);
+    });
+
+    // Search on pressing Escape clears results and details
+    searchInput.addEventListener('keydown', e => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        searchInput.value = '';
+        searchList.innerHTML = '';
+        clearEmployeeDetails();
+      }
+    });
+
+    // Navigation buttons
+    document.getElementById('btn-search').addEventListener('click', () => toggleSection('search'));
+    document.getElementById('btn-admin').addEventListener('click', () => toggleSection('admin'));
+
+    // Admin section buttons
+    document.getElementById('btn-add-employee').addEventListener('click', () => {
+      const name = document.getElementById('admin-emp-name').value.trim();
+      const department = document.getElementById('admin-emp-department').value.trim();
+      const hireDate = document.getElementById('admin-emp-hiredate').value;
+      const leaveBalanceRaw = document.getElementById('admin-emp-leavebalance').value;
+      const leaveBalance = leaveBalanceRaw === '' ? null : Number(leaveBalanceRaw);
+
+      const validation = validateEmployeeForm(name, department, hireDate, leaveBalance);
+      if (!validation.valid) {
+        alert(validation.message);
+        return;
+      }
+      addOrUpdateEmployee(name, department, hireDate, leaveBalance);
+
+      // Clear inputs after add/update
+      document.getElementById('admin-emp-name').value = '';
+      document.getElementById('admin-emp-department').value = '';
+      document.getElementById('admin-emp-hiredate').value = '';
+      document.getElementById('admin-emp-leavebalance').value = '';
+    });
+
+    document.getElementById('btn-add-leave').addEventListener('click', () => {
+      const empId = Number(document.getElementById('admin-leave-emp').value);
+      const startDate = document.getElementById('admin-leave-start').value;
+      const endDate = document.getElementById('admin-leave-end').value;
+      const type = document.getElementById('admin-leave-type').value.trim();
+
+      const validation = validateLeaveForm(empId, startDate, endDate, type);
+      if (!validation.valid) {
+        alert(validation.message);
+        return;
+      }
+      addLeave(empId, startDate, endDate, type);
+
+      // Clear inputs after add
+      document.getElementById('admin-leave-start').value = '';
+      document.getElementById('admin-leave-end').value = '';
+      document.getElementById('admin-leave-type').value = '';
+    });
+
+    // Deduct leave days button
+    btnDeduct.addEventListener('click', () => {
+      const daysToDeduct = Number(deductInput.value);
+      const empId = getCurrentlySelectedEmployeeId();
+      if (!empId) {
+        alert('يرجى اختيار موظف أولاً.');
+        return;
+      }
+      if (!daysToDeduct || daysToDeduct <= 0 || !Number.isInteger(daysToDeduct)) {
+        alert('يرجى إدخال عدد أيام صحيح وأكثر من صفر.');
+        return;
+      }
+      const success = deductLeaveDays(empId, daysToDeduct);
+      if (success) {
+        deductInput.value = '';
+      }
+    });
+
+    // Print button
+    btnPrint.addEventListener('click', () => {
+      window.print();
+    });
+
+    // Initial render admin tables and dropdown
+    renderAdminEmployeeTable();
+    renderAdminLeaveTable();
+    renderLeaveEmployeeOptions();
+  });
+
+})();
+</script>
+</body>
+</html>
+
